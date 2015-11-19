@@ -1,21 +1,95 @@
-// Ionic Starter App
+(function(){
 
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
+
 var app = angular.module('starter', ['ionic']);
 
-app.controller('ListCtrl', function($scope){
-  $scope.notes = [
-    {
-    title: 'First Note',
-    description: 'This is my first note.'
-  },
+app.config(function($stateProvider, $urlRouterProvider){
+  $stateProvider.state('list', {
+  url:'/list',
+  templateUrl: 'templates/list.html'
+  });
+
+  $stateProvider.state('add', {
+  url:'/add',
+  templateUrl: 'templates/edit.html',
+  controller: 'AddCtrl'
+  });
+
+
+  $stateProvider.state('edit', {
+  url:'/edit/:noteId',
+  templateUrl: 'templates/edit.html',
+  controller: 'EditCtrl'
+  });
+
+
+  $urlRouterProvider.otherwise('/list');
+});
+
+
+var notes = [
   {
-  title: 'Second Note',
-  description: 'This is my second note.'
+    id: '1',
+  title: 'First Note',
+  description: 'This is my first note.'
+},
+{
+  id: '2',
+title: 'Second Note',
+description: 'This is my second note.'
+}
+];
+
+
+function getNote(noteId){
+  for(var i=0; i < notes.length; i++){
+    if(notes[i].id===noteId){
+      return notes[i];
+    }
   }
-  ];
+  return undefined;
+}
+
+function updateNote(note){
+  for(var i=0; i < notes.length; i++){
+    if(notes[i].id===note.id){
+      return notes[i] = note;
+    }
+  }
+  return undefined;
+}
+
+function createNote(note){
+  notes.push(note);
+}
+
+app.controller('ListCtrl', function($scope){
+  $scope.notes = notes;
+});
+
+app.controller('AddCtrl', function($scope, $state){
+
+  $scope.note = {
+    id: new Date().getTime().toString(),
+    title: '',
+    description: ''
+  };
+
+  $scope.save = function(){
+      createNote($scope.note);
+      $state.go('list');
+  };
+
+});
+
+app.controller('EditCtrl', function($scope, $state){
+
+  $scope.note = angular.copy(getNote($state.params.noteId));
+
+  $scope.save = function(){
+      updateNote($scope.note);
+      $state.go('list');
+  };
 
 });
 
@@ -31,3 +105,4 @@ app.run(function($ionicPlatform) {
     }
   });
 });
+}());
